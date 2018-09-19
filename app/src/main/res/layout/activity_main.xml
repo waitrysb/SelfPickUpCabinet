@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_margin="2dp"
+    app:cardCornerRadius="4dp"
+    tools:context=".activity.MainActivity">
+    <com.andexert.library.RippleView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:background="@drawable/color_cabinet_background">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:orientation="vertical">
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:background="@drawable/semicircle"/>
+                <Button
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginBottom="5dp"
+                    android:layout_marginLeft="5dp"
+                    android:layout_marginRight="5dp"
+                    android:layout_marginTop="15dp"
+                    android:textSize="40sp"
+                    android:textColor="#ffffff"
+                    android:textAlignment="center"
+
+                    android:background="@drawable/color_cabinet_second"
+                    android:text="设置"
+                    android:id="@+id/setBtn"
+                    /><!--android:background="#FF0000"-->
+
+
+                <Button
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginBottom="10dp"
+                    android:layout_marginRight="3dp"
+                    android:layout_marginLeft="3dp"
+                    android:textSize="40sp"
+                    android:textColor="#ffffff"
+                    android:textAlignment="center"
+                    android:background="@drawable/color_cabinet_forth"
+                    android:text="我要取件"
+                    android:id="@+id/takeBtn"
+                    />
+
+                <!--android:background="#844200"-->
+
+                <Button
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginBottom="15dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginLeft="5dp"
+                    android:layout_marginRight="5dp"
+                    android:textSize="40sp"
+                    android:textColor="#ffffff"
+                    android:textAlignment="center"
+                    android:background="@drawable/color_cabinet_third"
+                    android:text="我是快递员"
+                    android:id="@+id/addBtn"
+                    /><!--android:background="#00A600"-->
+
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:background="@drawable/bottom_semicircle"/>
+            </LinearLayout>
+
+        </LinearLayout>
+    </com.andexert.library.RippleView>
+</android.support.v7.widget.CardView>
