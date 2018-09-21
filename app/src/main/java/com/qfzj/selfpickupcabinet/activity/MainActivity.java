@@ -15,10 +15,13 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.google.gson.Gson;
 import com.qfzj.selfpickupcabinet.R;
+import com.qfzj.selfpickupcabinet.bean.BoxStatusBean;
+import com.qfzj.selfpickupcabinet.bean.CabinetBean;
 import com.qfzj.selfpickupcabinet.message.AllCabinetStatusMsg;
 import com.qfzj.selfpickupcabinet.message.AllDoorStatusMsg;
 import com.qfzj.selfpickupcabinet.message.DoorStatusMsg;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,9 +37,8 @@ public class MainActivity extends AppCompatActivity {
     @InjectView(R.id.setBtn)
     Button setBtn;
 
-    AllCabinetStatusMsg allCabinetStatusMsg;
-    AllDoorStatusMsg allDoorStatusMsg;
-    Map<String, String> cabinetMap;
+    Map<String, BoxStatusBean> boxNoToBox;
+    Map<String, String> orderNoToBoxNo;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -44,7 +46,10 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         ButterKnife.inject(this);
 
-        cabinetMap = new HashMap<String, String>();
+        boxNoToBox = new HashMap<String, BoxStatusBean>();
+        orderNoToBoxNo = new HashMap<String, String>();
+
+        updateBoxStatus();
     }
 
     @OnClick({R.id.addBtn, R.id.takeBtn, R.id.setBtn})
@@ -59,16 +64,17 @@ public class MainActivity extends AppCompatActivity {
                                 final String orderNo = "fffff";
 
                                 if(!orderNo.equals("")) {
-                                    String vacantCabinetNo = openVacantCabinet("0");
+                                    BoxStatusBean vacantCabinet = openVacantCabinet("0");
 
-                                    if(!vacantCabinetNo.equals("")) {
+                                    if(vacantCabinet != null) {
                                         //将订单号与柜子号绑定
-                                        cabinetMap.put(orderNo, vacantCabinetNo);
+                                        orderNoToBoxNo.put(orderNo, vacantCabinet.boxNo);
 
                                         AlertDialog.Builder builder1 = new AlertDialog.Builder(MainActivity.this);
-                                        builder1.setTitle(vacantCabinetNo + "号柜已打开\n放入物品后请关闭柜门！").setIcon(android.R.drawable.ic_dialog_info)
+                                        builder1.setTitle(vacantCabinet.boxNo + "号柜已打开，请放入物品\n关闭柜门后请点击确定！").setIcon(android.R.drawable.ic_dialog_info)
                                                 .setPositiveButton("确定", new DialogInterface.OnClickListener() {
                                                     public void onClick(DialogInterface dialog, int which) {
+                                                        //检查该柜门是否关闭
                                                         dialog.dismiss();
                                                     }
                                                 });
@@ -90,25 +96,31 @@ public class MainActivity extends AppCompatActivity {
                                 //这里需要扫描二维码，还没写
                                 final String reservationNo = "fffff";
 
-                                if(!cabinetMap.containsKey(reservationNo)) {
+                                if(!orderNoToBoxNo.containsKey(reservationNo)) {
                                     Toast.makeText(MainActivity.this, "没有这个柜子，请重新操作", Toast.LENGTH_SHORT).show();
                                 }
                                 else{
-                                    String cabinetNo = cabinetMap.get(reservationNo);
-                                    if(openCabinet(cabinetNo)) {
+                                    String cabinetNo = orderNoToBoxNo.get(reservationNo);
+                                    if(cabinetNo != null) {
+                                        BoxStatusBean boxStatusBean = boxNoToBox.get(cabinetNo);
 
-                                        cabinetMap.remove(reservationNo);
+                                        if(boxStatusBean != null) {
+                                            if(boxStatusBean != null && openCabinet(cabinetNo)) {
 
-                                        AlertDialog.Builder builder3 = new AlertDialog.Builder(MainActivity.this);
-                                        builder3.setTitle(cabinetNo + "号柜已打开\n取走您的物品后请关闭柜门！").setIcon(android.R.drawable.ic_dialog_info)
-                                                .setPositiveButton("确定", new DialogInterface.OnClickListener() {
-                                                    public void onClick(DialogInterface dialog, int which) {
-                                                        dialog.dismiss();
-                                                    }
-                                                });
-                                        builder3.show();
-                                    } else  {
-                                        Toast.makeText(MainActivity.this, "打开柜子失败", Toast.LENGTH_SHORT).show();
+                                                orderNoToBoxNo.remove(reservationNo);
+
+                                                AlertDialog.Builder builder3 = new AlertDialog.Builder(MainActivity.this);
+                                                builder3.setTitle(cabinetNo + "号柜已打开\n取走您的物品后请关闭柜门！").setIcon(android.R.drawable.ic_dialog_info)
+                                                        .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                                                            public void onClick(DialogInterface dialog, int which) {
+                                                                dialog.dismiss();
+                                                            }
+                                                        });
+                                                builder3.show();
+                                            } else  {
+                                                Toast.makeText(MainActivity.this, "打开柜子失败", Toast.LENGTH_SHORT).show();
+                                            }
+                                        }
                                     }
                                 }
                                 dialog.dismiss();
@@ -117,30 +129,62 @@ public class MainActivity extends AppCompatActivity {
                 builder2.show();
                 break;
             case R.id.setBtn:
-                Intent intent=new Intent(this,SettingOfBox.class);
+                updateBoxStatus();
+                Intent intent=new Intent(this,BoxSettingActivity.class);
+                intent.putExtra("BoxStatus", (Serializable) boxNoToBox);
                 startActivity(intent);
                 Toast.makeText(MainActivity.this, "设置", Toast.LENGTH_SHORT).show();
                 break;
         }
     }
 
-    public String openVacantCabinet(String groupNo) {
+    public BoxStatusBean openVacantCabinet(String groupNo) {
+        updateBoxStatus();
+
+        BoxStatusBean res = null;
+
+        for (Map.Entry<String, BoxStatusBean> entry: boxNoToBox.entrySet()) {
+            BoxStatusBean temp = entry.getValue();
+            if(temp.hasItem == 0) {
+                res = temp;
+                openCabinet(res.boxNo);
+            }
+        }
+        return res;
+    }
+
+    public void updateBoxStatus() {
         String result1 = "{\"errorCode\": 0, \"errorMessage\": \"成功\",\"data\":[{\"boxNo\": \"1\", \"hasItem\": 1}, {\"boxNo\": \"2\", \"hasItem\": 0}]}";
-        allCabinetStatusMsg = new Gson().fromJson(result1, AllCabinetStatusMsg.class);
+        AllCabinetStatusMsg allCabinetStatusMsg = new Gson().fromJson(result1, AllCabinetStatusMsg.class);
 
         String result2 = "{\"errorCode\": 0, \"errorMessage\": \"success\", \"data\":[{\"boxNo\": \"1\", \"doorStatus\": 1}, {\"boxNo\": \"2\", \"doorStatus\": 0}]}";
-        allDoorStatusMsg = new Gson().fromJson(result2, AllDoorStatusMsg.class);
-
-        String boxNo = "";
+        AllDoorStatusMsg allDoorStatusMsg = new Gson().fromJson(result2, AllDoorStatusMsg.class);
 
         if(allCabinetStatusMsg.errorCode == 0) {
-            boxNo = allCabinetStatusMsg.findVacantCabinet();
-            if(allDoorStatusMsg.findDoorStatus(boxNo) == 0) {
-                //openBox(boxNo);
+            for(int i = 0; i < allCabinetStatusMsg.data.size(); i++) {
+                String key = allCabinetStatusMsg.data.get(i).boxNo;
+                BoxStatusBean value = new BoxStatusBean(allCabinetStatusMsg.data.get(i));
+
+                if(boxNoToBox.containsKey(key)) {
+                    value = boxNoToBox.get(key);
+                    value.update(allCabinetStatusMsg.data.get(i));
+                }
+                boxNoToBox.put(key, value);
             }
         }
 
-        return boxNo;
+        if(allDoorStatusMsg.errorCode == 0) {
+            for(int i = 0; i < allDoorStatusMsg.data.size(); i++) {
+                String key = allDoorStatusMsg.data.get(i).boxNo;
+                BoxStatusBean value = new BoxStatusBean(allDoorStatusMsg.data.get(i));
+
+                if(boxNoToBox.containsKey(key)) {
+                    value = boxNoToBox.get(key);
+                    value.update(allDoorStatusMsg.data.get(i));
+                }
+                boxNoToBox.put(key, value);
+            }
+        }
     }
 
     public boolean openCabinet(String boxNo) {
@@ -150,7 +194,9 @@ public class MainActivity extends AppCompatActivity {
         if(doorStatusMsg.errorCode == 0) {
             if(doorStatusMsg.data.doorStatus == 0) {
                 //openBox(boxNo);
+                updateBoxStatus();
             }
+
             return true;
         }
 
