@@ -35,7 +35,7 @@ public class StatusAdapter extends RecyclerView.Adapter<StatusAdapter.ViewHolder
     public void onBindViewHolder(final StatusAdapter.ViewHolder holder, int position) {
        final BoxStatusBean boxStatusBean = mStatusList.get(position);
        holder.boxNo.setText(boxStatusBean.boxNo);
-       holder.lightStatus.setImageResource(
+       holder.itemStatus.setImageResource(
           (boxStatusBean.hasItem==1)?
                   R.drawable.light_on:
                    R.drawable.light_off
@@ -45,18 +45,7 @@ public class StatusAdapter extends RecyclerView.Adapter<StatusAdapter.ViewHolder
                   R.drawable.door_open:
                    R.drawable.door_close
        );
-//       holder.lightStatus.setOnClickListener(new View.OnClickListener() {
-//           @Override
-//           public void onClick(View view) {
-//               holder.lightStatus.setImageResource(
-//                       (boxStatusBean.lightStatusChange()==1)?
-//                               R.drawable.light_on:
-//                                 R.drawable.light_off
-//               );
-//               /**调用开灯或关灯的函数，改变状态*/
-//               /**更新后台灯的状态存储*/
-//           }
-//       });
+
        holder.doorStatus.setOnClickListener(new View.OnClickListener() {
            @Override
            public void onClick(View view) {
@@ -78,13 +67,13 @@ public class StatusAdapter extends RecyclerView.Adapter<StatusAdapter.ViewHolder
     public class ViewHolder extends RecyclerView.ViewHolder {
         CardView cardView;
         TextView boxNo;
-        ImageView doorStatus,lightStatus;
+        ImageView doorStatus,itemStatus;
         public ViewHolder(View itemView) {
             super(itemView);
             cardView = (CardView) itemView;
             boxNo = itemView.findViewById(R.id.setting_boxNo);
             doorStatus = itemView.findViewById(R.id.setting_door);
-            lightStatus = itemView.findViewById(R.id.setting_light);
+            itemStatus = itemView.findViewById(R.id.setting_light);
         }
     }
 }
