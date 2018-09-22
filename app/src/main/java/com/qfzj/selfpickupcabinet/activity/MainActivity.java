@@ -155,7 +155,7 @@ public class MainActivity extends AppCompatActivity {
                                                         });
                                                 builder3.show();
                                             } else  {
-                                                Toast.makeText(MainActivity.this, "打开柜子失败", Toast.LENGTH_SHORT).show();
+                                                Toast.makeText(MainActivity.this, "打开柜子失败！", Toast.LENGTH_SHORT).show();
                                             }
                                         }
                                     }
@@ -166,11 +166,25 @@ public class MainActivity extends AppCompatActivity {
                 builder2.show();
                 break;
             case R.id.setBtn:
-                updateBoxStatus();
-                Intent intent=new Intent(this,BoxSettingActivity.class);
-                intent.putExtra("BoxStatus", (Serializable) boxNoToBox);
-                startActivity(intent);
-                Toast.makeText(MainActivity.this, "设置", Toast.LENGTH_SHORT).show();
+                AlertDialog.Builder builder4 = new AlertDialog.Builder(MainActivity.this);
+                builder4.setTitle("您好，请扫描二维码").setIcon(android.R.drawable.ic_dialog_info)
+                        .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        //这里需要扫描二维码，还没写
+                                        String userValidation = "aaa";
+
+                                        if(userValidation.equals("aaa")) {
+                                            updateBoxStatus();
+                                            Intent intent=new Intent(MainActivity.this,BoxSettingActivity.class);
+                                            intent.putExtra("BoxStatus", (Serializable) boxNoToBox);
+                                            startActivity(intent);
+                                        } else {
+                                            Toast.makeText(MainActivity.this, "管理员验证失败！", Toast.LENGTH_SHORT).show();
+                                        }
+                                        dialog.dismiss();
+                                    }
+                                });
+                builder4.show();
                 break;
         }
     }
