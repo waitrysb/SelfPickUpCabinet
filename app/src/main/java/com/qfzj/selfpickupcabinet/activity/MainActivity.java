@@ -20,6 +20,7 @@ import com.qfzj.selfpickupcabinet.bean.BoxStatusBean;
 import com.qfzj.selfpickupcabinet.bean.CabinetBean;
 import com.qfzj.selfpickupcabinet.message.AllCabinetStatusMsg;
 import com.qfzj.selfpickupcabinet.message.AllDoorStatusMsg;
+import com.qfzj.selfpickupcabinet.message.CabinetStatusMsg;
 import com.qfzj.selfpickupcabinet.message.DoorStatusMsg;
 import com.qfzj.selfpickupcabinet.util.HttpUtil;
 
@@ -79,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
                                                 .setPositiveButton("确定", new DialogInterface.OnClickListener() {
                                                     public void onClick(DialogInterface dialog, int which) {
                                                         //检查该柜门是否关闭
-                                                        if(checkDoor(vacantCabinet.boxNo) == 0) {
+                                                        if(checkItem(vacantCabinet.boxNo) == 1 && checkDoor(vacantCabinet.boxNo) == 0) {
                                                             //将订单号与柜子号绑定
                                                             orderNoToBoxNo.put(orderNo, vacantCabinet.boxNo);
 
@@ -199,6 +200,7 @@ public class MainActivity extends AppCompatActivity {
             if(temp.hasItem == 0) {
                 res = temp;
                 openCabinet(res.boxNo);
+                break;
             }
         }
         return res;
@@ -227,6 +229,18 @@ public class MainActivity extends AppCompatActivity {
         if(doorStatusMsg.errorCode == 0) {
             updateBoxStatus();
             return doorStatusMsg.data.doorStatus;
+        }
+
+        return -1;
+    }
+
+    public int checkItem(String boxNo) {
+        String result = "{\"errorCode\": 0, \"errorMessage\": \"success\", \"data\":{\"boxNo\": \"1\", \"hasItem\": 1}}";
+        CabinetStatusMsg cabinetStatusMsg = new Gson().fromJson(result, CabinetStatusMsg.class);
+
+        if(cabinetStatusMsg.errorCode == 0) {
+            updateBoxStatus();
+            return cabinetStatusMsg.data.hasItem;
         }
 
         return -1;
