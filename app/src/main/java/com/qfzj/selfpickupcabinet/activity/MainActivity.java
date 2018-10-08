@@ -22,11 +22,17 @@ import com.qfzj.selfpickupcabinet.message.AllCabinetStatusMsg;
 import com.qfzj.selfpickupcabinet.message.AllDoorStatusMsg;
 import com.qfzj.selfpickupcabinet.message.CabinetStatusMsg;
 import com.qfzj.selfpickupcabinet.message.DoorStatusMsg;
+import com.qfzj.selfpickupcabinet.util.GlideImageLoader;
 import com.qfzj.selfpickupcabinet.util.HttpUtil;
+import com.youth.banner.Banner;
+import com.youth.banner.BannerConfig;
+import com.youth.banner.Transformer;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import butterknife.ButterKnife;
@@ -42,6 +48,8 @@ public class MainActivity extends AppCompatActivity {
     Button takeBtn;
     @InjectView(R.id.setBtn)
     Button setBtn;
+    @InjectView(R.id.banner)
+    Banner banner;
 
     Map<String, BoxStatusBean> boxNoToBox;
     Map<String, String> orderNoToBoxNo;
@@ -57,7 +65,39 @@ public class MainActivity extends AppCompatActivity {
         boxNoToBox = new HashMap<String, BoxStatusBean>();
         orderNoToBoxNo = new HashMap<String, String>();
 
+        //更新箱子状态
         updateBoxStatus();
+
+        //加载广告位的图片
+        ArrayList<Integer> images = new ArrayList<Integer>();
+        images.add(R.drawable.door_open);
+        images.add(R.drawable.door_close);
+        images.add(R.drawable.light_on);
+        images.add(R.drawable.light_off);
+
+        ArrayList<String> titles = new ArrayList<String>();
+        titles.add("1");
+        titles.add("2");
+        titles.add("3");
+        titles.add("4");
+        //设置banner样式
+        banner.setBannerStyle(BannerConfig.CIRCLE_INDICATOR_TITLE);
+        //设置图片加载器
+        banner.setImageLoader(new GlideImageLoader());
+        //设置图片集合
+        banner.setImages(images);
+        //设置banner动画效果
+        banner.setBannerAnimation(Transformer.DepthPage);
+        //设置标题集合（当banner样式有显示title时）
+        banner.setBannerTitles(titles);
+        //设置自动轮播，默认为true
+        banner.isAutoPlay(true);
+        //设置轮播时间
+        banner.setDelayTime(1500);
+        //设置指示器位置（当banner模式中有指示器时）
+        banner.setIndicatorGravity(BannerConfig.CENTER);
+        //banner设置方法全部调用完毕时最后调用
+        banner.start();
     }
 
     @OnClick({R.id.addBtn, R.id.takeBtn, R.id.setBtn})
